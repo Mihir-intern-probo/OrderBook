@@ -21,11 +21,6 @@ const orderBookWorker = async (event_id, end_time) => {
                     reject(new Error(`Worker file stopped working with code ${code}`))
                 }
             })
-            const currentDate = new Date().toJSON();
-            if(moment(end_time).unix() <= moment(currentDate).unix()){
-                worker.terminate();
-            }
-
         })
 } catch(err) {
     console.log(err);
