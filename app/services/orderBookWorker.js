@@ -10,13 +10,20 @@ const orderBookWorker = async (event_id, end_time) => {
                 }
             });
             worker.on('message' ,(data)=>{
-                resolve(data);
-            })
+                console.log(data);
+                if (data.terminate) {
+                    worker.terminate();
+                    console.log("Worker Thread terminated", event_id);
+                    resolve();
+                  } else {
+                    resolve(data);
+                  }
+            });
             worker.on('error',(data)=>{
                 reject(data);
             })
             worker.on('exit',(code)=>{
-                console.log(1);
+                console.log("Worker Thread successfully Terminated", event_id);
                 if(code!=0){
                     reject(new Error(`Worker file stopped working with code ${code}`))
                 }
