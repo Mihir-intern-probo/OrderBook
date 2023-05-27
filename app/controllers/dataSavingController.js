@@ -3,6 +3,7 @@ const {SOCKET_CONSTANTS} = require('../utils/Constants');
 const {orderBookWorker} = require('../services/orderBookWorker');
 const {client} = require('../utils/redis.js');
 const moment = require('moment');
+const { exec } = require('child_process');
 
 const dataController={
     saveData: async(req,res)=>{
@@ -23,6 +24,19 @@ const dataController={
                 client.set(`end_time_${req.body.EVENT_ID}`, JSON.stringify((req.body.END_TIME)), 'EX', 15 * 60);
                 const currentDate = new Date().toJSON();
                 if(moment(req.body.END_TIME).unix() <= moment(currentDate).unix()-10){
+		    console.log('Terminating');
+		    const command = 'pm2 restart 0';
+		    exec(command, (error, stdout, stderr) => {
+  			if (error) {
+    			    console.error(`Error executing command: ${error.message}`);
+    			    return;
+  			}
+  			if (stderr) {
+    			    console.error(`Command execution returned an error: ${stderr}`);
+    			    return;
+  			}
+  			console.log(`Command output:\n${stdout}`);
+			});
                     socket.emit(`unsubscribe_orderbook_${req.body.EVENT_ID}`);
                 }
 	    }catch(err){
