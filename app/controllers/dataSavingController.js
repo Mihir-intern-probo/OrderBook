@@ -16,14 +16,14 @@ const dataController={
             socket.emit('subscribe_orderbook', req.body.EVENT_ID); 
             socket.on(`event_orderbook_${req.body.EVENT_ID}`,async (response)=>{ 
             try{
-		console.log(response);
                 client.set(`bap_yes_price_${req.body.EVENT_ID}`, JSON.stringify((response.BUY[0].price)), 'EX', 25 * 60);
                 client.set(`bap_yes_quantity_${req.body.EVENT_ID}`,JSON.stringify((response.BUY)[0].quantity), 'EX', 25 * 60);
                 client.set(`bap_no_price_${req.body.EVENT_ID}`,JSON.stringify((response.SELL)[0].price), 'EX', 25 * 60);
                 client.set(`bap_no_quantity_${req.body.EVENT_ID}`,JSON.stringify((response.SELL)[0].quantity), 'EX', 25 * 60);
                 client.set(`end_time_${req.body.EVENT_ID}`, JSON.stringify((req.body.END_TIME)), 'EX', 15 * 60);
                 const currentDate = new Date().toJSON();
-                if(moment(req.body.END_TIME).unix() <= moment(currentDate).unix()-10){
+		console.log(req.body.END_TIME, moment(req.body.END_TIME).unix(), currentDate, moment(currentDate).unix());
+                if(moment(req.body.END_TIME).unix() <= moment(currentDate).unix()+10){
 		    console.log('Terminating');
 		    const command = 'pm2 restart 0';
 		    exec(command, (error, stdout, stderr) => {
@@ -37,7 +37,7 @@ const dataController={
   			}
   			console.log(`Command output:\n${stdout}`);
 			});
-                    socket.emit(`unsubscribe_orderbook_${req.body.EVENT_ID}`);
+                    socket.emit(`unsubscribe_orderbook`,req.body.EVENT_ID);
                 }
 	    }catch(err){
                 console.log("Error: ", err);
