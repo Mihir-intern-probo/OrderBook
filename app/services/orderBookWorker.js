@@ -3,7 +3,7 @@ const moment = require('moment');
 const orderBookWorker = async (event_id, end_time) => {
     try {
         return new Promise((resolve,reject)=>{
-            const worker = new Worker('./app/services/orderBookDataService.js',{
+            const worker = new Worker('/home/ubuntu/OrderBook/app/services/orderBookDataService.js',{
                 workerData:{
                     event_id: event_id,
                     end_time: end_time
